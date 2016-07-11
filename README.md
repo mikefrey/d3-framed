@@ -1,2 +1,2 @@
-# d3-framed.js
+# d3-framed
 Rectangular frame selection for D3
