@@ -67,8 +67,8 @@ export default function() {
       // deselect any selected items
       var nodes = items().classed(className, false)
       var m = mouse(containerNode)
-      var x = m.x
-      var y = m.y
+      var x = m[0]
+      var y = m[1]
 
       if (startX == undefined)
         [startX, startY] = [x, y]
