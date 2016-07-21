@@ -1,0 +1,41 @@
+{
+  "name": "d3-framed",
+  "version": "1.0.0",
+  "description": "Rectangular frame selection on SVG using mouse input.",
+  "keywords": [
+    "d3",
+    "d3-module",
+    "frame-selection",
+    "selection",
+    "behavior",
+    "interaction"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Mike Frey"
+  },
+  "main": "build/d3-framed.js",
+  "jsnext:main": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikefrey/d3-framed.git"
+  },
+  "scripts": {
+    "pretest": "rm -rf build && mkdir build && rollup --banner \"$(preamble)\" -g d3-dispatch:d3,d3-selection:d3,d3-zoom:d3 -f umd -n d3 -o build/d3-framed.js -- index.js",
+    "test": "tape 'test/**/*-test.js' && eslint index.js src",
+    "prepublish": "npm run test && uglifyjs --preamble \"$(preamble)\" build/d3-framed.js -c -m -o build/d3-framed.min.js",
+    "postpublish": "VERSION=`node -e 'console.log(require(\"./package.json\").version)'`; git push && git push --tags"
+  },
+  "dependencies": {
+    "d3-dispatch": "1",
+    "d3-selection": "1",
+    "d3-zoom": "^1.0.2"
+  },
+  "devDependencies": {
+    "eslint": "2",
+    "package-preamble": "0.0",
+    "rollup": "0.33",
+    "tape": "4",
+    "uglify-js": "2"
+  }
+}
