@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    rect.selection {
+      stroke: #54B0CB;
+      fill: rgba(84, 176, 203, 0.15);
+      shape-rendering: crispEdges;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node {
+      fill: steelblue;
+      stroke: black;
+      stroke-width:2px;
+    }
+    .node .selected {
+      fill: red;
+    }
+
+    .axis line {
+      fill: none;
+      stroke: #eee;
+      shape-rendering: crispEdges;
+      vector-effect: non-scaling-stroke;
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+  </svg>
+  <script src="//d3js.org/d3.v4.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.13.1/lodash.min.js"></script>
+  <script src="../build/d3-framed.js"></script>
+  <script>
+
+    const nodeWidth = 16
+    const nodeHeight = 16
+
+    const margin = {top: -5, right: -5, bottom: -5, left: -5}
+    const width = 960 - margin.left - margin.right
+    const height = 500 - margin.top - margin.bottom
+
+    const zoom = d3.zoom()
+        .scaleExtent([0.5, 10])
+        .filter(() => event.button == 2 || event.type == 'wheel') // only pan on right-click
+        .on("zoom", zoomed)
+        .on('end', () => svg.classed('panning', false))
+
+    const drag = d3.drag()
+        .subject(d => d)
+        .on("start", dragStarted)
+        .on("drag", dragged)
+        .on("end", dragEnded)
+
+    const frameSelect = d3.framed()
+        .items(() => d3.selectAll('.node circle'))
+        .on('end', nodesSelected)
+
+    const svg = d3.select("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+        .call(zoom)
+        .call(frameSelect)
+        .on('contextmenu', () => {
+          svg.classed('panning', true)
+          event.preventDefault() // disable context menu
+        })
+
+
+    const rect = svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+
+    const container = svg.append("g")
+
+    container.append("g")
+        .attr("class", "x axis")
+      .selectAll("line")
+        .data(d3.range(0, width, 20))
+      .enter().append("line")
+        .attr("x1", d => d)
+        .attr("y1", 0)
+        .attr("x2", d => d)
+        .attr("y2", height);
+
+    container.append("g")
+        .attr("class", "y axis")
+      .selectAll("line")
+        .data(d3.range(0, height, 20))
+      .enter().append("line")
+        .attr("x1", 0)
+        .attr("y1", d => d)
+        .attr("x2", width)
+        .attr("y2", d => d);
+
+    d3.json("data.json", function(error, data) {
+
+      container.append("g")
+          .attr("class", "node")
+        .selectAll("circle")
+          .data(data.nodes)
+        .enter().append("circle")
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .attr("r", nodeWidth/2)
+          .call(drag)
+          .on('mouseover', d => d3.select(d3.event.target).classed('over', true))
+          .on('mouseout', d => d3.select(d3.event.target).classed('over', false))
+
+    });
+
+
+    function zoomed() {
+      const transform = d3.event.transform
+      container.attr("transform", `translate(${transform.x},${transform.y})scale(${transform.k})`);
+    }
+
+
+    let dragSelected
+    let dragPos = { x:0, y:0 }
+
+    function dragStarted(d) {
+      d3.event.sourceEvent.stopPropagation()
+
+      let selected = d3.selectAll('.node .selected')
+
+      if (!selected.size())
+        selected = d3.select(this)
+
+      selected.classed("dragging", true)
+      dragSelected = selected
+
+      dragPos.x = d3.event.x
+      dragPos.y = d3.event.y
+    }
+
+    function dragged(d) {
+      dragSelected
+        .each(n => {
+          n.x += d3.event.x - dragPos.x
+          n.y += d3.event.y - dragPos.y
+        })
+        .attr("cx", n => n.x)
+        .attr("cy", n => n.y)
+
+      dragPos.x = d3.event.x
+      dragPos.y = d3.event.y
+    }
+
+    function dragEnded(d) {
+      // d3.select(this)
+      dragSelected.classed("dragging", false)
+    }
+
+
+    function nodesSelected(nodes) {
+      if (nodes.size()) {
+        console.log(nodes)
+      }
+    }
+
+  </script>
+</body>
+</html>
