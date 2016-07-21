@@ -13,7 +13,7 @@ export default function() {
   var container
   var containerNode
   var className = 'selected'
-  var items = () => {}
+  var items = function(){}
 
   function framed(selection) {
     containerNode = selection.node()
@@ -22,7 +22,7 @@ export default function() {
   }
 
   framed.items = function(fn) {
-    typeof fn !== 'function' ? items = (() => fn) : items = fn
+    typeof fn !== 'function' ? items = (function(){return fn}) : items = fn
     return framed
   }
 
@@ -66,7 +66,9 @@ export default function() {
 
       // deselect any selected items
       var nodes = items().classed(className, false)
-      var [x, y] = mouse(containerNode)
+      var m = mouse(containerNode)
+      var x = m.x
+      var y = m.y
 
       if (startX == undefined)
         [startX, startY] = [x, y]
@@ -101,7 +103,7 @@ export default function() {
       frame.remove()
       noevent()
 
-      emit('end', items().filter(`.${className}`))
+      emit('end', items().filter('.'+className))
     }
   }
 
