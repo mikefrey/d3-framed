@@ -87,8 +87,8 @@ export default function() {
 
       nodes.each(function(/*d*/) {
         var item = select(this)
-        var x = parseFloat(item.attr('x'), 10)
-        var y = parseFloat(item.attr('y'), 10)
+        var x = parseFloat(item.attr('x') || item.attr('cx'), 10)
+        var y = parseFloat(item.attr('y') || item.attr('cy'), 10)
 
         if (x1 < x && x < x2 && y1 < y && y < y2) {
           item.classed(className, true)
