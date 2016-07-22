@@ -65,7 +65,7 @@ export default function() {
       noevent()
 
       // deselect any selected items
-      var nodes = items().classed(className, false)
+      var nodes = items() //.classed(className, false)
       var m = mouse(containerNode)
       var x = m[0]
       var y = m[1]
@@ -89,11 +89,18 @@ export default function() {
 
       nodes.each(function(/*d*/) {
         var item = select(this)
+        var hasClass = item.classed(className)
         var x = parseFloat(item.attr('x') || item.attr('cx'), 10)
         var y = parseFloat(item.attr('y') || item.attr('cy'), 10)
+        var isInside = x1 < x && x < x2 && y1 < y && y < y2
 
-        if (x1 < x && x < x2 && y1 < y && y < y2) {
+        if (isInside && !hasClass) {
           item.classed(className, true)
+          emit('select', item)
+        } 
+        else if (!isInside && hasClass) {
+          item.classed(className, false)
+          emit('deselect', item)
         }
       })
     }
